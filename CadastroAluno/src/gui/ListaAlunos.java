@@ -1,15 +1,5 @@
 package gui;
 
-import dao.AlunoDAO;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JOptionPane;
-import modelo.Aluno;
-
 public class ListaAlunos extends javax.swing.JInternalFrame {
     
     public void salvarAluno(){
@@ -54,7 +44,6 @@ public class ListaAlunos extends javax.swing.JInternalFrame {
         jtfPesquisa = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jtTabelaAlunos = new javax.swing.JTable();
-        jbConsultar = new javax.swing.JButton();
 
         jbAlterar.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jbAlterar.setText("Alterar");
@@ -66,11 +55,6 @@ public class ListaAlunos extends javax.swing.JInternalFrame {
 
         jbExcluir.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jbExcluir.setText("Excluir");
-        jbExcluir.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbExcluirActionPerformed(evt);
-            }
-        });
 
         jbSalvar.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jbSalvar.setText("Salvar");
@@ -241,26 +225,19 @@ public class ListaAlunos extends javax.swing.JInternalFrame {
             jtTabelaAlunos.getColumnModel().getColumn(0).setResizable(false);
         }
 
-        jbConsultar.setText("Consultar");
-        jbConsultar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jbConsultarActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout jpnConsultaLayout = new javax.swing.GroupLayout(jpnConsulta);
         jpnConsulta.setLayout(jpnConsultaLayout);
         jpnConsultaLayout.setHorizontalGroup(
             jpnConsultaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jpnConsultaLayout.createSequentialGroup()
                 .addGap(14, 14, 14)
-                .addComponent(jlPesquisa)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jtfPesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, 422, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(jbConsultar)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE)
+                .addGroup(jpnConsultaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(jpnConsultaLayout.createSequentialGroup()
+                        .addComponent(jlPesquisa)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jtfPesquisa, javax.swing.GroupLayout.DEFAULT_SIZE, 530, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jpnConsultaLayout.setVerticalGroup(
             jpnConsultaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -268,11 +245,10 @@ public class ListaAlunos extends javax.swing.JInternalFrame {
                 .addGap(8, 8, 8)
                 .addGroup(jpnConsultaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jlPesquisa)
-                    .addComponent(jtfPesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jbConsultar))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jtfPesquisa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addContainerGap(12, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -312,54 +288,7 @@ public class ListaAlunos extends javax.swing.JInternalFrame {
         // TODO add your handling code here:
         habilitaBotoes(true);
         habilitarCampos(false);
-               
-        try {
-            AlunoDAO dao = new AlunoDAO();
-            Aluno aluno = new Aluno(); 
-
-            // Validação dos campos
-            if (jtNome.getText().isEmpty() || jtDataNasc.getText().isEmpty() || jtPeso.getText().isEmpty() || jtAltura.getText().isEmpty()) {
-                JOptionPane.showMessageDialog(null, "Todos os campos devem ser preenchidos", "Erro", JOptionPane.ERROR_MESSAGE);
-                return;  // Encerra o método se algum campo estiver vazio
-            }
-
-            // Preenche os dados do aluno
-            aluno.setAlu_nome(jtNome.getText());
-            aluno.setAlu_cpf(Integer.parseInt(jtCpf.getText()));
-            try {
-                aluno.setAlu_nasc(LocalDate.parse(jtDataNasc.getText(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-            } catch (DateTimeParseException e) {
-                JOptionPane.showMessageDialog(null, "Data de nascimento inválida. Use o formato yyyy-MM-dd", "Erro", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            try {
-                aluno.setAlu_peso(Float.parseFloat(jtPeso.getText()));
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Peso inválido. Informe um valor numérico", "Erro", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            try {
-                aluno.setAlu_altura(Float.parseFloat(jtAltura.getText()));
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Altura inválida. Informe um valor numérico", "Erro", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            System.out.println("Atualizando aluno com CPF: " + aluno.getAlu_cpf());
-            // Atualiza o aluno no banco de dados
-            boolean atualiza = dao.atualizar(aluno);
-
-            if (atualiza) {
-                JOptionPane.showMessageDialog(null, "Aluno " + aluno.getAlu_nome() + " atualizado com sucesso", "Informação", JOptionPane.INFORMATION_MESSAGE);
-                limparCampos();
-            } else {
-                JOptionPane.showMessageDialog(null, "Erro na atualização do aluno", "Erro", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ListaAlunos.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(null, "Erro de banco de dados ao tentar atualizar", "Erro", JOptionPane.ERROR_MESSAGE);
-        }
+        salvarAluno();
     }//GEN-LAST:event_jbSalvarActionPerformed
 
     private void jbCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbCancelarActionPerformed
@@ -375,45 +304,6 @@ public class ListaAlunos extends javax.swing.JInternalFrame {
     private void jtCpfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jtCpfActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jtCpfActionPerformed
-
-    private void jbConsultarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbConsultarActionPerformed
-        String aluCpfConsulta;
-        aluCpfConsulta = jtfPesquisa.getText();
-        AlunoDAO dao = new AlunoDAO();
-        try {
-            Aluno aluno = dao.consultar(aluCpfConsulta);
-            if (aluno == null){
-                    JOptionPane.showMessageDialog(null, "Erro CPF não localizado no sistema", "Erro", JOptionPane.ERROR_MESSAGE);
-            }else{
-                jtNome.setText(aluno.getAlu_nome());
-                jtCpf.setText(String.valueOf(aluno.getAlu_cpf()));
-                jtDataNasc.setText(aluno.getAlu_nasc().toString());
-                jtPeso.setText(String.valueOf(aluno.getAlu_peso()));
-                jtAltura.setText(String.valueOf(aluno.getAlu_altura()));
-                jtfPesquisa.setText("");
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ListaAlunos.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_jbConsultarActionPerformed
-
-    private void jbExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbExcluirActionPerformed
-        String aluCpfDeletar = jtCpf.getText();
-        try {
-            AlunoDAO dao = new AlunoDAO();
-            boolean deleta = dao.deletar(aluCpfDeletar);
-            if(deleta == true){
-                JOptionPane.showMessageDialog(null, "Aluno " + jtNome.getText() + " excluído com sucesso", "Informação", JOptionPane.INFORMATION_MESSAGE);
-                limparCampos();
-                jbExcluir.setEnabled(true);
-            }else{
-                JOptionPane.showMessageDialog(null, "Erro na exclusão do aluno", "Erro", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(ListaAlunos.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-    }//GEN-LAST:event_jbExcluirActionPerformed
     
     //Metodo habilita botoes lista de alunos
     public void habilitaBotoes(boolean estado){
@@ -431,14 +321,6 @@ public class ListaAlunos extends javax.swing.JInternalFrame {
         jtNome.setEnabled(estado);
         jtPeso .setEnabled(estado);
     }
-    
-    public void limparCampos(){
-        jtAltura.setText("");
-        jtCpf.setText("");
-        jtDataNasc.setText("");
-        jtNome.setText("");
-        jtPeso.setText("");
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -448,7 +330,6 @@ public class ListaAlunos extends javax.swing.JInternalFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton jbAlterar;
     private javax.swing.JButton jbCancelar;
-    private javax.swing.JButton jbConsultar;
     private javax.swing.JButton jbExcluir;
     private javax.swing.JButton jbFechar;
     private javax.swing.JButton jbSalvar;

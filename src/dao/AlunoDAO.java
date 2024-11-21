@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import modelo.Aluno;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 
 
 public class AlunoDAO {
@@ -31,48 +32,81 @@ public class AlunoDAO {
         }
     }
     
-    public void atualizar(Aluno aluno) throws SQLException{
-        String sql = "UPDATE Aluno SET alu_nome=?, alu_cpf=?, alu_nasc=?, alu_peso=?, alu_altura=? WHERE alu_cpf=?";
-        try{
+    public boolean atualizar(Aluno aluno) throws SQLException{
+        try {
+            String sql = "UPDATE Aluno SET alu_nome=?, alu_nasc=?, alu_peso=?, alu_altura=? WHERE alu_cpf=?";
             PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setString(1, aluno.getAlu_nome());
-            stmt.setInt(2, aluno.getAlu_cpf());
-            stmt.setDate(3, java.sql.Date.valueOf(aluno.getAlu_nasc()));
-            stmt.setFloat(4, aluno.getAlu_peso());
-            stmt.setFloat(5, aluno.getAlu_altura());
-            stmt.execute();
-            stmt.close();
-        }catch (SQLException u){
-            throw new RuntimeException(u);
+
+            // Substituindo os pontos de interrogação pelos parâmetros:
+            stmt.setString(1, aluno.getAlu_nome()); // Nome do aluno
+            System.out.println(aluno.getAlu_nome());
+            stmt.setDate(2, java.sql.Date.valueOf(aluno.getAlu_nasc())); // Data de nascimento
+            stmt.setFloat(3, aluno.getAlu_peso()); // Peso do aluno
+            stmt.setFloat(4, aluno.getAlu_altura()); // Altura do aluno
+            stmt.setInt(5, aluno.getAlu_cpf()); // CPF do aluno (onde será feita a atualização)
+
+            // Executando o comando e verificando se alguma linha foi afetada
+            int rowsAffected = stmt.executeUpdate();
+            System.out.println(rowsAffected);
+            if (rowsAffected > 0) {
+                return true;  // Atualização bem-sucedida
+            } else {
+                return false;  // Nenhuma linha foi atualizada
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace(); // Exibe o erro detalhado
+            throw new RuntimeException(ex);
         }
     }
     
-    public void deletar(Aluno aluno) throws SQLException{
-        String sql = "DELETE FROM Aluno WHERE alu_cpf = ?";
+    public boolean deletar(String alu_cpf) throws SQLException{
         try{
+            String sql = "DELETE FROM Aluno WHERE alu_cpf = ?";
             PreparedStatement stmt = connection.prepareStatement(sql);
-            stmt.setInt(1, aluno.getAlu_cpf());
-            stmt.execute();
-            stmt.close();
-        }catch (SQLException u){
-            throw new RuntimeException(u);
+            stmt.setString(1, alu_cpf);
+            stmt.executeUpdate();
+            return true;
+        }catch (SQLException ex){
+            return false;
+        }
+    }
+    
+    public Aluno consultar(String alu_cpf)throws SQLException{
+        try{
+            Aluno aluno = new Aluno();
+            String sql = "SELECT * FROM Aluno WHERE alu_cpf = ?";
+            PreparedStatement stmt = connection.prepareStatement(sql);
+            stmt.setString(1, alu_cpf);
+            ResultSet rs = stmt.executeQuery();
+            
+            if(rs.next()){
+                aluno.setAlu_cpf(rs.getInt("alu_cpf"));
+                aluno.setAlu_nome(rs.getString("alu_nome"));
+                aluno.setAlu_nasc(rs.getDate("alu_nasc").toLocalDate());
+                aluno.setAlu_peso(rs.getFloat("alu_peso"));
+                aluno.setAlu_altura(rs.getFloat("alu_altura"));
+                return aluno;
+            }else{
+                return null;
+            }
+        }catch (SQLException ex) {
+            return null;
         }
     }
     
     public boolean cpfJaCadastrado(String cpf) {
         String sql = "SELECT COUNT(*) AS total FROM Aluno WHERE alu_cpf = ?";
-
-        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            pstmt.setString(1, cpf); // Substitui o "?" pelo CPF digitado
-            ResultSet rs = pstmt.executeQuery();
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, cpf);
+            ResultSet rs = stmt.executeQuery();
             
             if (rs.next()) {
-                return rs.getInt("total") > 0; // Retorna true se o CPF já existe
+                return rs.getInt("total") > 0;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-        return false; // Retorna false caso ocorra algum erro
+        return false;
     }
+    
 }

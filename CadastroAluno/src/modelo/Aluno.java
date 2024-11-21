@@ -16,9 +16,6 @@ public class Aluno {
         this.alu_peso = alu_peso;
         this.alu_altura = alu_altura;
     }
-    
-    public Aluno() {
-    }
 
     public int getAlu_cpf() {
         return alu_cpf;
